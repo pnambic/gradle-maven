@@ -1,0 +1,44 @@
+group "com.pnambic.depan.gradle"
+
+repositories {
+  mavenCentral()
+  mavenLocal()
+}
+
+apply plugin: 'maven'
+apply plugin: 'java-gradle-plugin'
+
+dependencies {
+  compile "com.google.guava:guava:${guavaVersion}"
+
+  testCompile ("org.testng:testng:${testngVersion}") {
+    exclude group: 'junit', module: 'junit'
+  }
+}
+
+sourceSets {
+    functionalTest {
+        java.srcDirs file('src/test/java')
+        compileClasspath += sourceSets.main.output + configurations.testRuntime
+        runtimeClasspath += output + compileClasspath
+    }
+}
+
+gradlePlugin {
+
+  plugins {
+    depanDependenciesPlugin {
+      id = 'com.pnambic.depan.gradle.depan-maven-plugin'
+      implementationClass = 'com.pnambic.depan.gradle.dependencies.plugin.DepanMavenPlugin'
+    }
+
+    // testSourceSets sourceSets.functionalTest
+  }
+}
+
+test {
+  useTestNG()
+
+  // show standard out and standard error of the test JVM(s) on the console
+  testLogging.showStandardStreams = true
+}
